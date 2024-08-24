@@ -9,7 +9,7 @@ import { item, navList } from "./LeftNav";
 function BottomNav() {
   const pathname = usePathname();
   return (
-    <nav className="absolute bottom-0 left-0 right-0 h-20 lg:hidden flex justify-between items-center bg-grey-900 px-4 md:pt-6 pt-4">
+    <nav className="fixed bottom-0 left-0 right-0 h-20 lg:hidden flex justify-between items-center bg-grey-900 px-4 md:pt-6 pt-4 z-50">
       {navList.map((item, index) => (
         <AsideItem key={index} items={item} active={pathname === item.href} />
       ))}

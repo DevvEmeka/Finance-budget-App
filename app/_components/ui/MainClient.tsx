@@ -21,7 +21,7 @@ function MainClient({ children }: mainProps) {
       <BottomNav />
       <div
         className={`${
-          menuSow ? "lg:pl-[316px]" : "lg:pl-[104px]"
+          menuSow ? "xl:pl-[316px] lg:pl-[256px]" : "lg:pl-[104px]"
         } py-8 lg:pr-4 px-4 sm:px-8`}
       >
         <Header />

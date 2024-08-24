@@ -1,7 +1,7 @@
 import { formatCurrency, formatDateTime } from "@/app/_lib/dats-services";
 import Image from "next/image";
 
-const transactions = [
+export const transactions = [
   {
     avatar: "/assets/images/avatars/emma-richardson.jpg",
     name: "Emma Richardson",
@@ -53,7 +53,7 @@ function Transactions() {
   );
 }
 
-type TrxType = {
+export type TrxType = {
   avatar: string;
   name: string;
   category?: string;
@@ -62,7 +62,7 @@ type TrxType = {
   recurring?: boolean;
 };
 
-type Item = {
+export type Item = {
   item: TrxType;
 };
 

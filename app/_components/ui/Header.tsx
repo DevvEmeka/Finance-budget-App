@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import Button from "./Button";
 
 function Header() {
   const pathname = usePathname();
@@ -8,9 +9,14 @@ function Header() {
   let pathName =
     pathname === "/" ? "Overview" : pathname.replace("_", " ").replace("/", "");
   return (
-    <h1 className="text-2xl text-grey-900 font-bold capitalize mb-8">
-      {pathName}
-    </h1>
+    <div className="w-full flex justify-between items-center mb-8">
+      <h1 className="text-2xl text-grey-900 font-bold capitalize">
+        {pathName}
+      </h1>
+      {pathName === "pots" || pathName === "budgets" ? (
+        <Button>+ Add New {pathName.replace("s", "")}</Button>
+      ) : null}
+    </div>
   );
 }
 

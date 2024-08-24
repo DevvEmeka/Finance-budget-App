@@ -1,5 +1,7 @@
+import Pots from "../_components/pots/Pots";
+
 function page() {
-  return <div>pots</div>;
+  return <Pots />;
 }
 
 export default page;

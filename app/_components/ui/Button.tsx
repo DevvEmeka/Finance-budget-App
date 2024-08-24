@@ -3,12 +3,19 @@ import React from "react";
 type buttonProps = {
   children: React.ReactNode;
   type?: string;
+  onClick?: () => void;
+  className?: string;
 };
 
-function Button({ children, type = "primary" }: buttonProps) {
+function Button({
+  children,
+  type = "primary",
+  onClick,
+  className,
+}: buttonProps) {
   return (
     <button
-      className={`font-semibold rounded-md px-6 py-2 items-center flex gap-2 transition-all duration-300 min-h-[60px] ${
+      className={`font-semibold rounded-md p-3 items-center flex gap-2 transition-all duration-300 max-h-[60px] ${
         type === "primary"
           ? "bg-grey-900 text-beige-100 hover:bg-grey-500"
           : type === "secondary"
@@ -18,7 +25,8 @@ function Button({ children, type = "primary" }: buttonProps) {
           : type === "danger"
           ? "bg-secondary-red text-beige-100 hover:opacity-70"
           : ""
-      }`}
+      } capitalize ${className}`}
+      onClick={onClick}
     >
       {children}
     </button>

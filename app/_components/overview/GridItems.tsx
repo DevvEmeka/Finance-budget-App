@@ -4,17 +4,22 @@ import leftArr from "@/public/assets/images/icon-caret-right.svg";
 import Image from "next/image";
 type gridItems = {
   children: ReactNode;
+  className?: string;
 };
 
-function GridItems({ children }: gridItems) {
+function GridItems({ children, className }: gridItems) {
   return (
-    <div className="bg-secondary-white rounded-lg w-full p-4 ">{children}</div>
+    <div
+      className={`bg-secondary-white rounded-lg w-full p-4 z-20 ${className}`}
+    >
+      {children}
+    </div>
   );
 }
 
 export function FlexItems({ children }: gridItems) {
   return (
-    <div className="flex justify-between items-center gap-4 w-full py-6">
+    <div className="flex justify-between items-center gap-4 w-full">
       {children}
     </div>
   );
@@ -36,7 +41,7 @@ export function LinkButton({ href, children }: linkProps) {
   );
 }
 export function HeaderGrid({ children }: gridItems) {
-  return <h3 className="text-xl text-grey-900">{children}</h3>;
+  return <h3 className="text-xl text-grey-900 my-6">{children}</h3>;
 }
 
 export default GridItems;
