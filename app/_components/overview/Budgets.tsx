@@ -1,12 +1,11 @@
 import { ItemsColor } from "./Pots";
 import { TrxType } from "./Transactions";
 
-
-
 export type budgetsProps = {
   category: string;
   maximum: number;
   theme: string;
+  id: string;
 };
 
 export type BudgetsProp = {

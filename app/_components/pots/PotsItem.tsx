@@ -11,6 +11,8 @@ import { useState } from "react";
 import Modal from "../ui/Modal";
 import PotsForm, { FormEdit } from "./PotsForm";
 import DeleteModal from "../ui/DeleteModal";
+import { deletePots } from "@/app/_lib/actions";
+import WithdrawalAddForm from "./WithdrawalAddForm";
 
 type propsPots = {
   item: potsProp;
@@ -21,6 +23,13 @@ function PotsItem({ item }: propsPots) {
     menu: false,
     modal: { open: false, toOpen: "" },
   });
+
+  // const [addWithd, setAddWithd] = useState({
+  //   add: { open: false },
+  //   widthdrawal: { open: false },
+  // });
+
+  const [isLoading, setIsLoading] = useState(false);
 
   function handleOpenMenu() {
     setOpenMen((prevState) => ({
@@ -40,6 +49,20 @@ function PotsItem({ item }: propsPots) {
         ...prevState,
         modal: { open: true, toOpen: "delete" },
       }));
+    handleOpenMenu();
+  }
+
+  function handleOpenAddWidth(type: "add" | "withdraw") {
+    if (type === "add") {
+      setOpenMen((prevState) => ({
+        ...prevState,
+        modal: { open: true, toOpen: "add" },
+      }));
+    } else if (type === "withdraw")
+      setOpenMen((prevState) => ({
+        ...prevState,
+        modal: { open: true, toOpen: "withdraw" },
+      }));
   }
 
   function handleCloseModal() {
@@ -47,6 +70,18 @@ function PotsItem({ item }: propsPots) {
       ...prevState,
       modal: { open: false, toOpen: "" },
     }));
+  }
+
+  async function handleDelete() {
+    setIsLoading(true);
+    try {
+      await deletePots(5, item.id);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+      handleCloseModal();
+    }
   }
 
   const { theme } = item;
@@ -58,7 +93,7 @@ function PotsItem({ item }: propsPots) {
           onClose={handleCloseModal}
           title={`Edit ${item.name} pot`}
         >
-          <PotsForm type="edit" message="" />
+          <PotsForm type="edit" message="" editPots={item} />
         </Modal>
       )}
 
@@ -68,10 +103,35 @@ function PotsItem({ item }: propsPots) {
           onClose={handleCloseModal}
           title={`Delete '${item.name} pot' `}
         >
-          <DeleteModal item="Pot" />
+          <DeleteModal
+            item="Pot"
+            deleteFn={handleDelete}
+            close={handleCloseModal}
+            loading={isLoading}
+          />
         </Modal>
       )}
-      <FlexItems>
+
+      {openMenu.modal.toOpen == "add" && (
+        <Modal
+          isOpen={openMenu.modal.open}
+          onClose={handleCloseModal}
+          title={`Add to '${item.name}' `}
+        >
+          <WithdrawalAddForm item={item} type="add" />
+        </Modal>
+      )}
+
+      {openMenu.modal.toOpen == "withdraw" && (
+        <Modal
+          isOpen={openMenu.modal.open}
+          onClose={handleCloseModal}
+          title={`Withdraw from '${item.name}' `}
+        >
+          <WithdrawalAddForm item={item} type="withdraw" />
+        </Modal>
+      )}
+      <FlexItems className="relative">
         <div className="flex items-center gap-2">
           <span
             className={`h-2 w-2 rounded-full ${
@@ -115,13 +175,13 @@ function PotsItem({ item }: propsPots) {
           className="w-6 h-2 flex relative items-center justify-center"
           onClick={handleOpenMenu}
         >
-          {openMenu.menu ? (
-            <FormEdit handleEdit={handleOpenModal} type="pots" />
-          ) : null}
           <span className="w-full h-1 relative">
             <Image src={menu} alt="Menu" fill />
           </span>
         </button>
+        {openMenu.menu ? (
+          <FormEdit handleEdit={handleOpenModal} type="pots" className="" />
+        ) : null}
       </FlexItems>
 
       <FlexItems>
@@ -183,12 +243,14 @@ function PotsItem({ item }: propsPots) {
         <Button
           className="w-full flex justify-center items-center"
           type="secondary"
+          onClick={() => handleOpenAddWidth("add")}
         >
           + Add Money
         </Button>
         <Button
           type="secondary"
           className="w-full flex justify-center items-center"
+          onClick={() => handleOpenAddWidth("withdraw")}
         >
           withdraw
         </Button>

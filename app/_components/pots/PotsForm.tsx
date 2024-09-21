@@ -5,11 +5,31 @@ import GridItems from "../overview/GridItems";
 import { budgetsProps, carDown, ColorMenu, Input } from "../budgets/BudgtForm";
 import Image from "next/image";
 import Button from "../ui/Button";
+import { useForm } from "react-hook-form";
+import { createPots, editPot } from "@/app/_lib/actions";
+import SpinnerMini from "../ui/SpinnerMini";
 
-function PotsForm({ type, message }: budgetsProps) {
+type FormValues = {
+  name: string;
+  // theme: string;
+  target: number;
+};
+
+function PotsForm({ type, message, editPots, close }: budgetsProps) {
+  const { register, handleSubmit, formState, setValue } = useForm<FormValues>();
+  const { errors } = formState;
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [charCount, setCharCount] = useState(0);
+  const maxChar = 30;
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCharCount(e.target.value.length);
+  };
+
   const [colorOpen, setColorOpen] = useState({
     open: false,
-    color: { theme: "green" },
+    color: { theme: type === "edit" ? editPots?.theme : "green" },
   });
 
   function handleOpenColor() {
@@ -27,6 +47,33 @@ function PotsForm({ type, message }: budgetsProps) {
     }));
   }
 
+  async function onSubmit(data: FormValues) {
+    const dataPots = {
+      name: data.name,
+      theme: colorOpen.color.theme,
+      target: +data.target,
+      id: `pots${Math.random() * 10}`,
+      total: 0,
+    };
+
+    setIsLoading(true);
+
+    try {
+      if (type === "edit") {
+        const editData = {
+          ...data,
+          theme: colorOpen.color.theme,
+          id: editPots?.id,
+        };
+        await editPot(5, editPots?.id, editData);
+      } else await createPots(5, dataPots);
+    } catch (error) {
+    } finally {
+      setIsLoading(false);
+      close?.();
+    }
+  }
+
   return (
     <GridItems className="w-full h-full px-0 ">
       <p className="text-sm text-grey-500  mb-4">
@@ -41,10 +88,26 @@ function PotsForm({ type, message }: budgetsProps) {
             placeholder="$ e.g Rainy Days"
             className="h-full w-full outline-none"
             type="text"
+            defaultValue={editPots?.name}
+            {...register("name", {
+              required: "Pot name is required",
+              maxLength: {
+                value: maxChar,
+                message: `Pot name cannot exceed ${maxChar} characters`,
+              },
+            })}
+            onChange={handleInputChange}
           />
-          <span className="text-end w-full flex justify-end mt-2 text-grey-500">
-            0 of 30 characters left
-          </span>
+
+          {errors?.name?.message ? (
+            <span className="text-secondary-red text-sm flex items-center justify-end my-2">
+              {errors?.name?.message}
+            </span>
+          ) : (
+            <span className="text-end w-full flex justify-end mt-2 text-grey-500">
+              {charCount < 30 ? maxChar - charCount : 0} characters left
+            </span>
+          )}
         </Input>
 
         <Input label="Target">
@@ -52,7 +115,22 @@ function PotsForm({ type, message }: budgetsProps) {
             placeholder="$ e.g 2000"
             className="h-full w-full outline-none"
             type="number"
+            defaultValue={editPots?.target}
+            {...register("target", {
+              required: "You should have a target for your pot",
+              pattern: {
+                value: /^[0-9]+$/,
+                message: "Please enter a valid amount",
+              },
+              min: { value: 10, message: "Minimum amount is $10" },
+            })}
           />
+
+          {errors?.target?.message ? (
+            <span className="text-secondary-red text-sm flex items-center justify-end my-2">
+              {errors?.target?.message}
+            </span>
+          ) : null}
         </Input>
 
         <Input label="Theme">
@@ -111,8 +189,17 @@ function PotsForm({ type, message }: budgetsProps) {
             </span>
           </button>
         </Input>
-        <Button className="flex items-center justify-center">
-          {type === "new" ? "Add Pot" : "Save Changes"}
+        <Button
+          className="flex items-center justify-center"
+          onClick={handleSubmit(onSubmit)}
+        >
+          {isLoading ? (
+            <SpinnerMini />
+          ) : type === "new" ? (
+            "Add Pot"
+          ) : (
+            "Save Changes"
+          )}
         </Button>
       </div>
     </GridItems>
@@ -122,11 +209,14 @@ function PotsForm({ type, message }: budgetsProps) {
 type editProps = {
   handleEdit: (type: string) => void;
   type: string;
+  className?: string;
 };
 
-export function FormEdit({ handleEdit, type }: editProps) {
+export function FormEdit({ handleEdit, type, className }: editProps) {
   return (
-    <GridItems className="absolute w-[120px] h-32 -bottom-32 -left-20 shadow-2xl z-50 px-2">
+    <GridItems
+      className={`absolute max-w-[120px] h-32  shadow-2xl z-[100] px-2 ${className}`}
+    >
       <button
         className="text-grey-500 py-3 border-b border-b-beige-100 text-sm w-full"
         onClick={() => handleEdit("edit")}

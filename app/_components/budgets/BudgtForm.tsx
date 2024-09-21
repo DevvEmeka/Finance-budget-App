@@ -7,15 +7,18 @@ import Image from "next/image";
 import Button from "../ui/Button";
 import { useForm } from "react-hook-form";
 import SpinnerMini from "../ui/SpinnerMini";
-import { createBudget, getTransactions } from "@/app/_lib/actions";
+import { createBudget, editBudget, getTransactions } from "@/app/_lib/actions";
 import { budgetsProps as budp } from "../overview/Budgets";
 import { Item, itemsColorType } from "./BudgetsItem";
+import { potsProp } from "../pots/Pots";
 
 export { carDown };
 export type budgetsProps = {
   type: "new" | "edit";
   message: string;
   edit?: itemsColorType;
+  editPots?: potsProp;
+  close?: () => void;
 };
 
 type FormValues = {
@@ -28,8 +31,8 @@ function BudgtForm({ type, message, edit }: budgetsProps) {
   const { errors } = formState;
 
   const initialState = {
-    color: "green",
-    category: "Entertainment",
+    color: "",
+    category: "",
   };
   const [colorOpen, setColorOpen] = useState({
     open: false,
@@ -61,7 +64,18 @@ function BudgtForm({ type, message, edit }: budgetsProps) {
 
     setLoading(true);
     try {
-      await createBudget(5, formValue);
+      if (type === "edit") {
+        const datay = {
+          maximum: +data.maximum,
+          theme: edit?.theme,
+          category: edit?.category,
+          budgetId: edit?.budgetId,
+        };
+
+        await editBudget(5, edit?.budgetId, datay);
+      } else {
+        await createBudget(5, formValue);
+      }
     } catch (error) {
       console.error("Budget creation failed");
     } finally {

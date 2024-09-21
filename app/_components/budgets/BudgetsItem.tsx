@@ -16,6 +16,7 @@ import Modal from "../ui/Modal";
 import PotsForm, { FormEdit } from "../pots/PotsForm";
 import DeleteModal from "../ui/DeleteModal";
 import BudgtForm from "./BudgtForm";
+import { deleteBudget } from "@/app/_lib/actions";
 
 export type itemsColorType = {
   name?: string;
@@ -25,6 +26,7 @@ export type itemsColorType = {
   category?: string;
   transactions?: TrxType[];
   maximum: number;
+  budgetId?: string | undefined;
 };
 
 function BudgetsItems({ transactions }: transac) {
@@ -38,12 +40,14 @@ function BudgetsItems({ transactions }: transac) {
 }
 
 function BudgetsItem({ item }: Item) {
-  const { theme, name, maximum, category, transactions } = item;
+  const { theme, name, maximum, category, transactions, budgetId } = item;
 
   const [openMenu, setOpenMen] = useState({
     menu: false,
     modal: { open: false, toOpen: "" },
   });
+
+  const [isDeleting, setIsDeleting] = useState(false);
 
   function handleOpenMenu() {
     setOpenMen((prevState) => ({
@@ -72,6 +76,18 @@ function BudgetsItem({ item }: Item) {
     }));
   }
 
+  async function handleDelBudget() {
+    setIsDeleting(true);
+    try {
+      await deleteBudget(5, budgetId);
+      // TODO: Update state
+    } catch (error) {
+      console.error("Error deleting budget:", error);
+    } finally {
+      setIsDeleting(false);
+      handleCloseModal();
+    }
+  }
 
   const total = transactions
     ?.map((tr) => tr.amount)
@@ -99,10 +115,15 @@ function BudgetsItem({ item }: Item) {
           onClose={handleCloseModal}
           title={`Delete '${item.category} budget' `}
         >
-          <DeleteModal item="budget" />
+          <DeleteModal
+            item="budget"
+            deleteFn={handleDelBudget}
+            close={handleCloseModal}
+            loading={isDeleting}
+          />
         </Modal>
       )}
-      <FlexItems>
+      <FlexItems className="relative">
         <div className="flex items-center gap-2">
           <span
             className={`h-2 w-2 rounded-full ${
@@ -146,13 +167,18 @@ function BudgetsItem({ item }: Item) {
           className="w-6 h-2 flex items-center justify-center relative"
           onClick={handleOpenMenu}
         >
-          {openMenu.menu ? (
-            <FormEdit handleEdit={handleOpenModal} type="budgets" />
-          ) : null}
           <span className="w-full h-1 relative">
             <Image src={menu} alt="Menu" fill />
           </span>
         </button>
+
+        {openMenu.menu ? (
+          <FormEdit
+            handleEdit={handleOpenModal}
+            type="budgets"
+            className="right-16"
+          />
+        ) : null}
       </FlexItems>
 
       <p className="my-6 text-grey-500 font-light">
@@ -280,6 +306,7 @@ type bugsumprop = {
   transactions: TrxType[];
   theme: string;
   maximum: number;
+  id: string;
 };
 
 type transac = {
@@ -312,7 +339,7 @@ export type Item = {
 };
 
 function BudgetsColors({ item }: Item) {
-  const { theme, name, maximum, category, transactions } = item;
+  const { theme, name, maximum, category, transactions, budgetId } = item;
 
   const total = transactions
     ?.map((tr) => tr.amount)

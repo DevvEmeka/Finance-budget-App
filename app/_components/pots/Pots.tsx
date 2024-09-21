@@ -7,6 +7,8 @@ export type potsProp = {
   target: number;
   total: number;
   theme: string;
+  id: string;
+  // maximum?: number;
 };
 
 async function Pots() {

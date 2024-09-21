@@ -22,7 +22,6 @@ function MainClient({ children }: mainProps) {
   const closeModal = () => setShowModal(false);
 
   const pathname = usePathname();
-  console.log(pathname);
   let pathName =
     pathname === "/" ? "Overview" : pathname.replace("_", " ").replace("/", "");
 
@@ -47,7 +46,7 @@ function MainClient({ children }: mainProps) {
           </Modal>
         ) : pathname === "/pots" ? (
           <Modal title="Add New Pot" isOpen={showModal} onClose={closeModal}>
-            <PotsForm type="new" message="" />
+            <PotsForm type="new" message="" close={closeModal} />
           </Modal>
         ) : null}
         <Header pathName={pathName} openModal={openModal} />

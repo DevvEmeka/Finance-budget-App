@@ -177,8 +177,6 @@ function getRecDayPerMonth(date: string) {
 }
 
 function RecItemsItem({ item }: RecItem) {
-  console.log(item.status);
-
   return (
     <>
       <div className="flex items-center gap-4 ">

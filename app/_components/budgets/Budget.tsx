@@ -9,6 +9,7 @@ async function Budget() {
   const data = await getTransactions();
 
   type BudgetProps = {
+    id: number; // Add id to BudgetProps
     category: string;
   };
 
@@ -16,6 +17,7 @@ async function Budget() {
     transactions: TrxType[];
     budgets: BudgetProps[];
   };
+
   const { transactions, budgets } = data;
 
   const findTransactionsInBudgets = (): TrxType[] => {
@@ -49,6 +51,7 @@ async function Budget() {
             transactions: [],
             theme: "", // Default theme
             maximum: 0, // Default maximum
+            budgetId: null, // Default id (we'll update this later)
           };
         }
         // Add transaction to the category
@@ -59,9 +62,10 @@ async function Budget() {
     // Process budgets
     budgets.forEach((budget: budgetsProps) => {
       if (combinedMap[budget.category]) {
-        // Update combined data with budget properties
+        // Update combined data with budget properties, including the id
         combinedMap[budget.category].theme = budget.theme;
         combinedMap[budget.category].maximum = budget.maximum;
+        combinedMap[budget.category].budgetId = budget.id; // Add budget id
       }
     });
 
@@ -83,7 +87,7 @@ async function Budget() {
       <div>
         <BudgetsSummaryItems transactions={datay} />
       </div>
-      <div className=" flex flex-col gap-4">
+      <div className="flex flex-col gap-4">
         <BudgetsItems transactions={datay} />
       </div>
     </div>

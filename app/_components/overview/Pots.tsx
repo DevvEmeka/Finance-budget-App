@@ -50,6 +50,7 @@ export type itemsColorType = {
   theme: string;
   name?: string;
   total?: number;
+  id? : string
 };
 
 export function ItemsColor({
