@@ -4,39 +4,21 @@ import saved from "@/public/assets/images/icon-pot.svg";
 import Image from "next/image";
 import Header from "../ui/Header";
 
-function Pots() {
-  const potsItems = [
-    {
-      name: "Savings",
-      target: 2000.0,
-      total: 159.0,
-      theme: "green",
-    },
-    {
-      name: "Concert Ticket",
-      target: 150.0,
-      total: 110.0,
-      theme: "navy",
-    },
-    {
-      name: "Gift",
-      target: 150.0,
-      total: 110.0,
-      theme: "cyan",
-    },
-    {
-      name: "New Laptop",
-      target: 1000.0,
-      total: 10.0,
-      theme: "yellow",
-    },
-    {
-      name: "Holiday",
-      target: 1440.0,
-      total: 531.0,
-      theme: "purple",
-    },
-  ];
+type PotsItemsProps = {
+  name: string;
+  target: number;
+  total: number;
+  theme: string;
+};
+
+type potsProp = {
+  potsItems: PotsItemsProps[];
+};
+
+function Pots({ potsItems }: potsProp) {
+  const totalPots = potsItems
+    .map((pot) => pot.total)
+    .reduce((acc, cur) => acc + cur, 0);
 
   return (
     <div className="grid md:grid-cols-[1fr,1.2fr] gap-3 ">
@@ -47,7 +29,7 @@ function Pots() {
         <div className="flex flex-col gap-3">
           <h3 className="text-sm text-grey-500">Total Saved</h3>
           <h1 className="text-2xl text-grey-900 font-bold capitalize">
-            {formatCurrency(850)}
+            {formatCurrency(totalPots)}
           </h1>
         </div>
       </div>
@@ -61,14 +43,23 @@ function Pots() {
   );
 }
 
-type itemsColorType = {
-  name: string;
+export type itemsColorType = {
+  category?: string;
   target?: number;
-  total?: number;
+  maximum?: number;
   theme: string;
+  name?: string;
+  total?: number;
 };
 
-export function ItemsColor({ name, theme, total }: itemsColorType) {
+export function ItemsColor({
+  category,
+  theme,
+  maximum,
+  total,
+  target,
+  name,
+}: itemsColorType) {
   return (
     <div className="flex items-center gap-4">
       <div
@@ -107,8 +98,14 @@ export function ItemsColor({ name, theme, total }: itemsColorType) {
         }`}
       ></div>
       <div className="flex flex-col gap-4">
-        <p className="text-grey-500 ">{name}</p>
-        <h2>{typeof total !== "undefined" && formatCurrency(total)}</h2>
+        <p className="text-grey-500 ">{category ? category : name}</p>
+        <h2>
+          {maximum
+            ? formatCurrency(maximum)
+            : total
+            ? formatCurrency(total)
+            : null}
+        </h2>
       </div>
     </div>
   );

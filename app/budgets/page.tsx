@@ -1,5 +1,7 @@
+import Budget from "../_components/budgets/Budget";
+
 function page() {
-  return <div>budgets</div>;
+  return <Budget />;
 }
 
 export default page;

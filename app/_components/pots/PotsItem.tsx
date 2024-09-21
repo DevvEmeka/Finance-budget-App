@@ -1,25 +1,76 @@
+"use client";
+
 import Image from "next/image";
 import GridItems, { FlexItems } from "../overview/GridItems";
 import { potsProp } from "./Pots";
 
 import menu from "@/public/assets/images/icon-ellipsis.svg";
-import { formatCurrency } from "@/app/_lib/dats-services";
+import { calculatePercentage, formatCurrency } from "@/app/_lib/dats-services";
 import Button from "../ui/Button";
+import { useState } from "react";
+import Modal from "../ui/Modal";
+import PotsForm, { FormEdit } from "./PotsForm";
+import DeleteModal from "../ui/DeleteModal";
 
 type propsPots = {
   item: potsProp;
 };
 
-export function calculatePercentage(part: number, total: number) {
-  if (total === 0) {
-    return 0; // Avoid division by zero
-  }
-  return (part / total) * 100;
-}
 function PotsItem({ item }: propsPots) {
+  const [openMenu, setOpenMen] = useState({
+    menu: false,
+    modal: { open: false, toOpen: "" },
+  });
+
+  function handleOpenMenu() {
+    setOpenMen((prevState) => ({
+      ...prevState,
+      menu: !prevState.menu,
+    }));
+  }
+
+  function handleOpenModal(type: string) {
+    if (type === "edit") {
+      setOpenMen((prevState) => ({
+        ...prevState,
+        modal: { open: true, toOpen: "edit" },
+      }));
+    } else if (type === "delete")
+      setOpenMen((prevState) => ({
+        ...prevState,
+        modal: { open: true, toOpen: "delete" },
+      }));
+  }
+
+  function handleCloseModal() {
+    setOpenMen((prevState) => ({
+      ...prevState,
+      modal: { open: false, toOpen: "" },
+    }));
+  }
+
   const { theme } = item;
   return (
     <GridItems className="flex flex-col gap-5">
+      {openMenu.modal.toOpen == "edit" && (
+        <Modal
+          isOpen={openMenu.modal.open}
+          onClose={handleCloseModal}
+          title={`Edit ${item.name} pot`}
+        >
+          <PotsForm type="edit" message="" />
+        </Modal>
+      )}
+
+      {openMenu.modal.toOpen == "delete" && (
+        <Modal
+          isOpen={openMenu.modal.open}
+          onClose={handleCloseModal}
+          title={`Delete '${item.name} pot' `}
+        >
+          <DeleteModal item="Pot" />
+        </Modal>
+      )}
       <FlexItems>
         <div className="flex items-center gap-2">
           <span
@@ -60,7 +111,13 @@ function PotsItem({ item }: propsPots) {
           <h1 className="text-lg font-semibold">{item.name}</h1>
         </div>
 
-        <button className="w-6 h-2 flex items-center justify-center">
+        <button
+          className="w-6 h-2 flex relative items-center justify-center"
+          onClick={handleOpenMenu}
+        >
+          {openMenu.menu ? (
+            <FormEdit handleEdit={handleOpenModal} type="pots" />
+          ) : null}
           <span className="w-full h-1 relative">
             <Image src={menu} alt="Menu" fill />
           </span>

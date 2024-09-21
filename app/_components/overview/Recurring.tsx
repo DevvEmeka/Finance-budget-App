@@ -1,26 +1,63 @@
 import { formatCurrency } from "@/app/_lib/dats-services";
 
-function Recurring() {
-  const trnx = [
-    {
-      name: "Paid bills",
-      amount: 116.5,
-      status: "paid",
-    },
-    {
-      name: "total upcoming",
-      amount: 206.5,
-      status: "upcoming",
-    },
-    {
-      amount: 116.5,
-      status: "pending",
-      name: "due soon",
-    },
-  ];
+type transactionsProp = {
+  recurringTrans: TrxType[];
+};
+type TrxType = {
+  avatar: string;
+  name: string;
+  category?: string;
+  date: string;
+  amount: number;
+  recurring?: boolean;
+  status?: string;
+};
+
+function Recurring({ recurringTrans }: transactionsProp) {
+  // Helper function to calculate the next payment date
+  const calculateNextPaymentDate = (date: Date): Date => {
+    const nextPaymentDate = new Date(date);
+    nextPaymentDate.setMonth(nextPaymentDate.getMonth() + 1); // Recurs every month
+    return nextPaymentDate;
+  };
+
+  // Current date and one week later
+  const currentDate = new Date();
+  const oneWeekLater = new Date();
+  oneWeekLater.setDate(currentDate.getDate() + 7);
+
+  // Initialize the result array
+  let trxx: TrxType[] = [];
+  const statusesSet = new Set<string>();
+
+  // Iterate through the recurring transactions and categorize them
+  recurringTrans.forEach((trx) => {
+    const trxDate = new Date(trx.date);
+    const nextPaymentDate = calculateNextPaymentDate(trxDate);
+
+    let status: string;
+
+    if (nextPaymentDate < currentDate) {
+      status = "Paid";
+    } else if (
+      nextPaymentDate >= currentDate &&
+      nextPaymentDate <= oneWeekLater
+    ) {
+      status = "Due soon";
+    } else {
+      status = "Upcoming";
+    }
+
+    // Add the transaction with status to the result array
+    if (!statusesSet.has(status)) {
+      statusesSet.add(status);
+      trxx.push({ ...trx, status });
+    }
+  });
+
   return (
     <div className="flex flex-col justify-center items-center gap-4 pb-8">
-      {trnx.map((payment, index) => (
+      {trxx.map((payment, index) => (
         <RecurringId key={index} {...payment} />
       ))}
     </div>
@@ -32,22 +69,22 @@ type Payment = {
   status: string;
   name: string;
 };
-export function RecurringId({ amount, status, name }: Payment) {
+export function RecurringId({ amount, status }: TrxType) {
   // if()
   return (
     <div
       className={`w-full h-14 rounded-lg border-l-4 px-2 flex items-center justify-between ${
-        status === "paid"
+        status === "Paid"
           ? "border-l-secondary-green"
-          : status === "upcoming"
+          : status === "Upcoming"
           ? "border-l-secondary-yellow"
-          : status === "pending"
+          : status === "Due soon"
           ? "border-l-secondary-cyan  "
           : ""
       } bg-beige-100`}
     >
-      <p className="capitalize text-grey-500 ">{name}</p>
-      <p className="font-semibold">{formatCurrency(amount)}</p>
+      <p className="capitalize text-grey-500 ">{status}</p>
+      <p className="font-semibold">{formatCurrency(amount).replace("-", "")}</p>
     </div>
   );
 }

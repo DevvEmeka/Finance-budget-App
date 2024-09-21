@@ -1,21 +1,26 @@
-"use client";
-
-import { usePathname } from "next/navigation";
 import Button from "./Button";
+import { createDummyData } from "@/app/_lib/actions";
 
-function Header() {
-  const pathname = usePathname();
+type HeaderProps = {
+  pathName: string;
+  openModal: () => void;
+};
 
-  let pathName =
-    pathname === "/" ? "Overview" : pathname.replace("_", " ").replace("/", "");
+function Header({ pathName, openModal }: HeaderProps) {
+  async function handlePushDummyData() {
+    await createDummyData();
+  }
+
   return (
     <div className="w-full flex justify-between items-center mb-8">
       <h1 className="text-2xl text-grey-900 font-bold capitalize">
         {pathName}
       </h1>
-      {pathName === "pots" || pathName === "budgets" ? (
-        <Button>+ Add New {pathName.replace("s", "")}</Button>
-      ) : null}
+      {(pathName === "pots" || pathName === "budgets") && (
+        <Button onClick={openModal}>
+          + Add New {pathName.replace("s", "")}
+        </Button>
+      )}
     </div>
   );
 }

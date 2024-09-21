@@ -6,16 +6,20 @@ function TransactionsItem({ item }: Item) {
   return (
     <>
       <div className="flex items-center gap-4 ">
-        <span className="relative w-8 h-8 rounded-full">
+        <span className="relative w-6 h-6 rounded-full">
           <Image
-            src={item.avatar}
+            src={
+              item.avatar.startsWith(".")
+                ? item.avatar.replace(".", "")
+                : item.avatar
+            }
             alt="User Avatar"
             fill
             className="rounded-full"
           />
         </span>
         <div className="flex flex-col gap-1">
-          <p className="text-grey-900 md:text-[18px] text-sm ">{item.name}</p>
+          <p className="text-grey-900 md:text-[14px] text-sm ">{item.name}</p>
           <p className="text-grey-500 text-sm md:hidden ">{item.category}</p>
         </div>
       </div>

@@ -1,5 +1,7 @@
+import Recurrings from "../_components/recurring/Recurrings";
+
 function page() {
-  return <div>bills</div>;
+  return <Recurrings />;
 }
 
 export default page;

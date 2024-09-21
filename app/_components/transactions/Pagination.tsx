@@ -4,46 +4,57 @@ import { ReactNode, useState } from "react";
 import leftArr from "@/public/assets/images/icon-caret-left.svg";
 import rightArr from "@/public/assets/images/icon-caret-right.svg";
 import Image from "next/image";
+// import { trxT } from "./Transaction";
 
-function Pagination() {
-  const [isCurPage, setIsCurPage] = useState(1);
-  const num = [1, 2, 3, 4];
+type pagiProp = {
+  pages: number[];
+  isCurPage: number;
+  handleCurPage: (type: string) => void;
+  setIsCurPage: (curPaage: number) => void;
+  onPageChange: (page: number) => void;
+};
 
-  function handleNextPrevPage(name: string) {
-    if (name === "next" && isCurPage < 4) {
-      setIsCurPage(isCurPage + 1);
-    }
-
-    if (name === "prev" && isCurPage > 1) {
-      setIsCurPage(isCurPage - 1);
-    } else return;
-  }
-
+function Pagination({
+  pages,
+  handleCurPage,
+  isCurPage,
+  setIsCurPage,
+  onPageChange,
+}: pagiProp) {
   return (
-    <div className="flex gap-4 md:justify-between items-center mt-8">
-      <PaginationItem onClick={() => handleNextPrevPage("prev")}>
-        <span className="h-4 w-4 relative">
-          <Image src={leftArr} alt="Direction icon" fill />
-        </span>
-        <p className="hidden md:flex">Prev</p>
-      </PaginationItem>
+    <div className="flex gap-4 md:grid md:grid-cols-3 items-center mt-8">
+      <div>
+        {isCurPage === 1 ? null : (
+          <PaginationItem onClick={() => handleCurPage("prev")}>
+            <span className="h-4 w-4 relative">
+              <Image src={leftArr} alt="Direction icon" fill />
+            </span>
+            <p className="hidden md:flex">Prev</p>
+          </PaginationItem>
+        )}
+      </div>
       <div className="flex gap-4 items-center">
-        {num.map((n, i) => (
+        {pages.map((n, i) => (
           <PaginationItem
             key={i}
             isCurPage={isCurPage === n}
-            onClick={() => setIsCurPage(n)}
+            onClick={() => onPageChange(n)}
           >
             <p>{n}</p>
           </PaginationItem>
         ))}
       </div>
-      <PaginationItem onClick={() => handleNextPrevPage("next")}>
-        <p className="hidden md:flex">Next</p>
-        <span className="h-4 w-4 relative">
-          <Image src={rightArr} alt="Direction icon" fill />
-        </span>
-      </PaginationItem>
+
+      <div className="md:flex md:justify-end">
+        {isCurPage === pages.length ? null : (
+          <PaginationItem onClick={() => handleCurPage("next")}>
+            <p className="hidden md:flex">Next</p>
+            <span className="h-4 w-4 relative">
+              <Image src={rightArr} alt="Direction icon" fill />
+            </span>
+          </PaginationItem>
+        )}
+      </div>
     </div>
   );
 }

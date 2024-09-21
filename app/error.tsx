@@ -12,7 +12,7 @@ export default function Error({ error, reset }: props) {
       <p className="text-lg">{error.message}</p>
 
       <button
-        className="inline-block bg-accent-600 text-purpple-100 px-6 py-3 text-lg"
+        className="inline-block bg-secondary-green  text-beige-100 px-6 py-3 text-lg"
         onClick={reset}
       >
         Try again

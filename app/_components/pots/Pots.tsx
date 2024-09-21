@@ -1,37 +1,6 @@
+import { getTransactions } from "@/app/_lib/actions";
 import PotsItem from "./PotsItem";
-
-const pots = [
-  {
-    name: "Savings",
-    target: 2000.0,
-    total: 159.0,
-    theme: "green",
-  },
-  {
-    name: "Concert Ticket",
-    target: 150.0,
-    total: 110.0,
-    theme: "navy",
-  },
-  {
-    name: "Gift",
-    target: 150.0,
-    total: 110.0,
-    theme: "cyan",
-  },
-  {
-    name: "New Laptop",
-    target: 1000.0,
-    total: 10.0,
-    theme: "yellow",
-  },
-  {
-    name: "Holiday",
-    target: 1440.0,
-    total: 531.0,
-    theme: "purple",
-  },
-];
+import Empty from "../ui/Empty";
 
 export type potsProp = {
   name: string;
@@ -40,10 +9,19 @@ export type potsProp = {
   theme: string;
 };
 
-function Pots() {
+async function Pots() {
+  const { pots } = await getTransactions();
+
+  if (!pots.length)
+    return (
+      <div className="w-full h-screen">
+        <Empty name="Pots" />
+      </div>
+    );
+
   return (
     <div className="lg:grid-cols-2 grid gap-4">
-      {pots.map((item, i) => (
+      {pots.map((item: potsProp, i: number) => (
         <PotsItem item={item} key={i} />
       ))}
     </div>

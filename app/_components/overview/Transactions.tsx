@@ -1,52 +1,14 @@
 import { formatCurrency, formatDateTime } from "@/app/_lib/dats-services";
 import Image from "next/image";
 
-export const transactions = [
-  {
-    avatar: "/assets/images/avatars/emma-richardson.jpg",
-    name: "Emma Richardson",
-    category: "General",
-    date: "2024-08-19T14:23:11Z",
-    amount: 75.5,
-    recurring: false,
-  },
-  {
-    avatar: "/assets/images/avatars/savory-bites-bistro.jpg",
-    name: "Savory Bites Bistro",
-    category: "Dining Out",
-    date: "2024-08-19T20:23:11Z",
-    amount: -55.5,
-    recurring: false,
-  },
-  {
-    avatar: "/assets/images/avatars/daniel-carter.jpg",
-    name: "Daniel Carter",
-    category: "General",
-    date: "2024-08-18T09:45:32Z",
-    amount: -42.3,
-    recurring: false,
-  },
-  {
-    avatar: "/assets/images/avatars/sun-park.jpg",
-    name: "Sun Park",
-    category: "General",
-    date: "2024-08-17T16:12:05Z",
-    amount: 120.0,
-    recurring: false,
-  },
-  {
-    avatar: "/assets/images/avatars/urban-services-hub.jpg",
-    name: "Urban Services Hub",
-    category: "General",
-    date: "2024-08-17T21:08:09Z",
-    amount: -65.0,
-    recurring: false,
-  },
-];
-function Transactions() {
+type transactionsProp = {
+  transactions: TrxType[];
+};
+
+function Transactions({ transactions }: transactionsProp) {
   return (
     <div>
-      {transactions.map((trx) => (
+      {transactions?.slice(0, 5).map((trx) => (
         <TransactionItem key={trx.date} item={trx} />
       ))}
     </div>
@@ -60,6 +22,7 @@ export type TrxType = {
   date: string;
   amount: number;
   recurring?: boolean;
+  status?: string;
 };
 
 export type Item = {
@@ -72,7 +35,11 @@ export function TransactionItem({ item }: Item) {
       <div className="flex items-center gap-4 ">
         <span className="relative w-8 h-8 rounded-full">
           <Image
-            src={item.avatar}
+            src={
+              item.avatar.startsWith(".")
+                ? item.avatar.replace(".", "")
+                : item.avatar
+            }
             alt="User Avatar"
             fill
             className="rounded-full"
