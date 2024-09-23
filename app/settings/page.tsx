@@ -1,9 +1,12 @@
 import AuthItem from "../_components/authentication/AuthItem";
 import { getUser } from "../_lib/actions";
 
-async function page() {
+export const metadata = {
+  title: "Profile update page",
+};
 
-  const user = await getUser()
+async function page() {
+  const user = await getUser();
   return (
     <div className="flex justify-center items-center">
       <AuthItem pageName="" type="edit" userData={user} />

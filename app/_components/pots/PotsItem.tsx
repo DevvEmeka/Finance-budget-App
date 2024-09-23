@@ -75,6 +75,10 @@ function PotsItem({ item }: propsPots) {
   async function handleDelete() {
     setIsLoading(true);
     try {
+      if (item.total > 0) {
+        alert("Cannot delete pot with available savings");
+        return;
+      }
       await deletePots(item.id);
     } catch (error) {
       console.error(error);

@@ -26,7 +26,6 @@ function Budgets({ budgets }: BudgetsProp) {
   return (
     <div className="grid lg:grid-cols-[1.8fr,1fr] gap-4">
       <div className="relative text-center">
-        {" "}
         {/* Relative to position the inner content */}
         <ResponsiveContainer width="100%" height={300}>
           <PieChart>

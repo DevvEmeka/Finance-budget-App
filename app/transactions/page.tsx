@@ -6,6 +6,10 @@ import Transaction from "../_components/transactions/Transaction";
 import Empty from "../_components/ui/Empty";
 import { getTransaction, getTransactions, ownerdata } from "../_lib/actions";
 
+export const metadata = {
+  title: "All transactions",
+};
+
 async function page() {
   const data = await getTransaction();
 

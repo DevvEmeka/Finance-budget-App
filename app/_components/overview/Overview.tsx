@@ -11,7 +11,6 @@ async function Overview() {
 
   const { transactions, budgets, pots } = data || [];
 
-
   const recuTrans = transactions?.filter(
     (transaction: TrxType) => transaction.recurring === true
   );
