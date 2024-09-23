@@ -291,7 +291,7 @@ export function Input({ label, children, className }: InputProps) {
 
 type menuProp = {
   open: boolean;
-  setOpen: () => void;
+  setOpen: (e: React.MouseEvent<HTMLButtonElement>) => void;
   handleSetThemes?: (theme: { theme: string }) => void;
   handleSetCats?: (category: { category: string }) => void;
   type?: "edit" | "new";
@@ -378,7 +378,12 @@ export function ColorMenu({
   );
 }
 
-function Categories({ open, setOpen, handleSetCats, categories }: menuProp) {
+export function Categories({
+  open,
+  setOpen,
+  handleSetCats,
+  categories,
+}: menuProp) {
   const categorie = [
     { category: "Entertainment" },
     { category: "Bills" },

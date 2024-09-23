@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getData } from "./dats-services";
+import { generateUniqueId, getData } from "./dats-services";
 import { supabase } from "./supabase";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
@@ -86,12 +86,23 @@ export async function getTransaction() {
   return transactions;
 }
 
-export async function createTrx(id: number, newTrx: object) {
-  // Fetch the current tasks
+type transactionType = {
+  name: string;
+  id: string;
+  amount: number;
+  date: string;
+  category: string;
+  avatar: string;
+  recurring?: boolean;
+};
+
+export async function createTrx(id: string, newTrx: transactionType) {
+  // Fetch the current senders trx
+  const user = await getUser();
   const { data: accountsTrx, error: fetchError } = await supabase
     .from("accountsTrx")
-    .select("transactions")
-    .eq("id", id)
+    .select("transactions, balance")
+    .eq("owners_id", user.user_id)
     .single();
 
   if (fetchError) {
@@ -99,21 +110,77 @@ export async function createTrx(id: number, newTrx: object) {
     return;
   }
 
-  // Append the new task to the tasks array
-  const updatedTrx = [...accountsTrx.transactions, newTrx];
+  // receiver
+  const { data: RecTrx, error: RecError } = await supabase
+    .from("accountsTrx")
+    .select("transactions, balance")
+    .eq("owners_id", id)
+    .single();
 
-  // Update the tasks array in the board
+  if (RecError) {
+    console.error("Error fetching tasks:", fetchError);
+    return;
+  }
+
+  // Append the new task to the tasks array
+
+  const trxData = {
+    ...newTrx,
+    name: user.name,
+    avatar: user.avatar,
+  };
+  const updatedTrx = [...RecTrx.transactions, trxData];
+
+  // Update the tasks array for receiver in the board
   const { data, error } = await supabase
     .from("accountsTrx")
     .update({ transactions: updatedTrx })
-    .eq("id", id);
+    .eq("owners_id", id);
+
+  // update receiver balance
+  const updatedBalance: BalanceType = {
+    ...RecTrx.balance,
+    current: RecTrx.balance.current + newTrx.amount,
+    income: RecTrx.balance.income + newTrx.amount, // Add the amount to income
+  };
+
+  const { data: inc, error: incErr } = await supabase
+    .from("accountsTrx")
+    .update({ balance: updatedBalance })
+    .eq("owners_id", id);
+
+  //  sender
+  const sedTrx = {
+    ...trxData,
+    amount: -newTrx.amount,
+    name: newTrx.name,
+    avatar: newTrx.avatar,
+  };
+
+  const updateSenderTrx = [...accountsTrx.transactions, sedTrx];
+  // update sender tasks array
+  const { data: snd, error: sendErr } = await supabase
+    .from("accountsTrx")
+    .update({ transactions: updateSenderTrx })
+    .eq("owners_id", user.user_id);
+
+  const updateBalance: BalanceType = {
+    ...accountsTrx.balance,
+    current: accountsTrx.balance.current - newTrx.amount,
+    expenses: accountsTrx.balance.expenses + newTrx.amount, // Add the amount to income
+  };
+
+  const { data: incD, error: incErrD } = await supabase
+    .from("accountsTrx")
+    .update({ balance: updateBalance })
+    .eq("owners_id", user.user_id);
 
   if (error) {
     console.error("Error adding transaction:", error);
   } else {
     console.log("Transaction added successfully:", data);
   }
-  // revalidatePath(`/boards/${board.name}`);
+  revalidatePath(`/`);
   return data;
 }
 
@@ -390,11 +457,13 @@ type BalanceType = {
 export async function addMoneyToPot(potsId: string, amount: number) {
   const user = cookies().get("user");
   const userId = user?.value.replace(/"/g, "");
+
   try {
+    const user = await getUser();
     // 1. Fetch the user's account transaction
     const { data: accountsTrx, error: fetchError } = await supabase
       .from("accountsTrx")
-      .select("pots, balance")
+      .select("pots, balance, transactions")
       .eq("owners_id", userId)
       .single(); // Fetch a single record by id
 
@@ -434,6 +503,28 @@ export async function addMoneyToPot(potsId: string, amount: number) {
       throw new Error("Error updating pots or balance: " + updateError.message);
     }
 
+    //5. register activity as a transaction
+
+    const trx = {
+      id: generateUniqueId(10),
+      date: new Date().toISOString(),
+      name: user.name,
+      amount: -amount,
+      avatar: user.avatar,
+      category: "General",
+      recurring: false,
+    };
+
+    const updatedTx = [...accountsTrx.transactions, trx];
+
+    const { error: trxErr } = await supabase
+      .from("accountsTrx")
+      .update({
+        transactions: updatedTx,
+        // balance: updatedBalance,
+      })
+      .eq("owners_id", userId);
+
     console.log("Successfully updated pot and balance.");
   } catch (error) {
     console.error(error || "An unknown error occurred");
@@ -446,11 +537,13 @@ export async function addMoneyToPot(potsId: string, amount: number) {
 export async function withdrawFromPot(potsId: string, amount: number) {
   const user = cookies().get("user");
   const userId = user?.value.replace(/"/g, "");
+
   try {
+    const user = await getUser();
     // 1. Fetch the user's account transaction
     const { data: accountsTrx, error: fetchError } = await supabase
       .from("accountsTrx")
-      .select("pots, balance")
+      .select("pots, balance, transactions")
       .eq("owners_id", userId)
       .single(); // Fetch a single record by id
 
@@ -498,6 +591,28 @@ export async function withdrawFromPot(potsId: string, amount: number) {
     if (updateError) {
       throw new Error("Error updating pots or balance: " + updateError.message);
     }
+
+    //6. register activity as a transaction
+
+    const trx = {
+      id: generateUniqueId(10),
+      date: new Date().toISOString(),
+      name: user.name,
+      amount: amount,
+      avatar: user.avatar,
+      category: "General",
+      recurring: false,
+    };
+
+    const updatedTx = [...accountsTrx.transactions, trx];
+
+    const { error: trxErr } = await supabase
+      .from("accountsTrx")
+      .update({
+        transactions: updatedTx,
+        // balance: updatedBalance,
+      })
+      .eq("owners_id", userId);
 
     console.log("Successfully withdrew from pot and updated balance.");
   } catch (error) {
@@ -557,6 +672,26 @@ export async function getUser() {
     .from("owners")
     .select("*")
     .eq("user_id", userId)
+    .single();
+
+  // if (error) {
+  //   console.error(error);
+  //   throw new error(error, "Unable to get user");
+  // }
+
+  if (!data) {
+    cookies().delete("user");
+    redirect("/login");
+  }
+
+  return data;
+}
+
+export async function getReceiver(id: string) {
+  const { data, error } = await supabase
+    .from("owners")
+    .select("*")
+    .eq("user_id", id)
     .single();
 
   // if (error) {
@@ -676,4 +811,9 @@ export async function updateUser(userObj: UserUpdate) {
   // Revalidate the path if necessary
   revalidatePath("/settings");
   revalidatePath("/");
+}
+
+export async function signOutAction() {
+  cookies()?.delete("user");
+  redirect("/login");
 }

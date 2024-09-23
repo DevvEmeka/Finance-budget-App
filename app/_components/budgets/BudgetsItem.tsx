@@ -11,12 +11,13 @@ import { ItemsColor } from "../overview/Pots";
 import Image from "next/image";
 import menu from "@/public/assets/images/icon-ellipsis.svg";
 import Transactions, { TrxType } from "../overview/Transactions";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from "../ui/Modal";
 import PotsForm, { FormEdit } from "../pots/PotsForm";
 import DeleteModal from "../ui/DeleteModal";
 import BudgtForm from "./BudgtForm";
-import { deleteBudget } from "@/app/_lib/actions";
+import { deleteBudget, getTransaction } from "@/app/_lib/actions";
+import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 
 export type itemsColorType = {
   name?: string;
@@ -303,7 +304,7 @@ function BudgetsItem({ item }: Item) {
 
 type bugsumprop = {
   category: string;
-  transactions: TrxType[];
+  transactions?: TrxType[];
   theme: string;
   maximum: number;
   id: string;
@@ -315,13 +316,48 @@ type transac = {
 };
 
 export function BudgetsSummaryItems({ transactions }: transac) {
-  // console.log(bdgets);
+  const [budgets, setBudgets] = useState<bugsumprop[]>([]);
+
+  useEffect(() => {
+    async function getbudgets() {
+      const bud = await getTransaction();
+
+      setBudgets(bud?.budgets);
+    }
+
+    getbudgets();
+  });
+
+  const total = budgets.reduce((sum, budget) => sum + budget.maximum, 0);
 
   return (
     <GridItems>
       <div className="flex flex-col gap-4">
-        <div className="text-center min-h-40">
-          this field is for data analysis pie chat
+        <div className="relative text-center">
+          {" "}
+          {/* Relative to position the inner content */}
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                data={budgets}
+                dataKey="maximum"
+                nameKey="category"
+                innerRadius={85}
+                outerRadius={110}
+                paddingAngle={3}
+              >
+                {budgets.map((entry, index) => (
+                  <Cell key={index} fill={entry.theme} stroke={entry.theme} />
+                ))}
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
+          {/* Centered Total */}
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            {total > 0 && (
+              <p className="text-xl font-bold">{` ${formatCurrency(total)}`}</p>
+            )}
+          </div>
         </div>
         <h1 className="text-grey-900  text-xl ">Spending summary</h1>
         <div className=" flex flex-col gap-3 pb-8">

@@ -10,6 +10,7 @@ import BudgtForm from "../budgets/BudgtForm";
 import { usePathname } from "next/navigation";
 import PotsForm from "../pots/PotsForm";
 import User from "../overview/User";
+import TrxForm from "../overview/TrxForm";
 
 type mainProps = {
   children: ReactNode;
@@ -24,12 +25,11 @@ function MainClient({ children }: mainProps) {
 
   const pathname = usePathname();
   let pathName =
-    pathname === "/signup" || pathname === "/login" ? (
-      ""
-    ) : pathname === "/" ? ( ''
-    ) : (
-      pathname.replace("_", " ").replace("/", "")
-    );
+    pathname === "/signup" || pathname === "/login"
+      ? ""
+      : pathname === "/"
+      ? "overview"
+      : pathname.replace("_", " ").replace("/", "");
 
   const data = getData();
 
@@ -61,6 +61,10 @@ function MainClient({ children }: mainProps) {
         ) : pathname === "/pots" ? (
           <Modal title="Add New Pot" isOpen={showModal} onClose={closeModal}>
             <PotsForm type="new" message="" close={closeModal} />
+          </Modal>
+        ) : pathname === "/" ? (
+          <Modal title="Transfer" isOpen={showModal} onClose={closeModal}>
+            <TrxForm />
           </Modal>
         ) : null}
         <Header pathName={pathName} openModal={openModal} />
