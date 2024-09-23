@@ -23,6 +23,10 @@
     animation: rotate 1s infinite linear;
   }
 
+  .auth {
+    height: 100dvh;
+  }
+
   @keyframes rotate {
     to {
       transform: rotate(1turn);

@@ -1,16 +1,21 @@
-import { getTransactions } from "@/app/_lib/actions";
+import { getTransaction } from "@/app/_lib/actions";
 import BudgetsItems, { BudgetsSummaryItems } from "./BudgetsItem";
 import { budgetsProps } from "../overview/Budgets";
 import { TransactionProps } from "../transactions/Transaction";
 import { TrxType } from "../overview/Transactions";
 import Empty from "../ui/Empty";
 
+type userID = {
+  userId: string | undefined;
+};
 async function Budget() {
-  const data = await getTransactions();
+  const data = await getTransaction();
 
   type BudgetProps = {
     id: number; // Add id to BudgetProps
     category: string;
+    maximum: number;
+    theme: string;
   };
 
   type DataProps = {
@@ -23,7 +28,7 @@ async function Budget() {
   const findTransactionsInBudgets = (): TrxType[] => {
     // Create a Set for budget categories (normalized to lowercase)
     const budgetCategories = new Set(
-      budgets.map((bud: BudgetProps) => bud.category.toLowerCase())
+      budgets?.map((bud: BudgetProps) => bud.category.toLowerCase())
     );
 
     // Filter transactions based on budget categories
@@ -60,7 +65,7 @@ async function Budget() {
     });
 
     // Process budgets
-    budgets.forEach((budget: budgetsProps) => {
+    budgets.forEach((budget: BudgetProps) => {
       if (combinedMap[budget.category]) {
         // Update combined data with budget properties, including the id
         combinedMap[budget.category].theme = budget.theme;
@@ -85,10 +90,10 @@ async function Budget() {
   return (
     <div className="grid lg:grid-cols-[1fr,1.3fr] gap-4 mb-16">
       <div>
-        <BudgetsSummaryItems transactions={datay} />
+        <BudgetsSummaryItems transactions={datay || budgets} />
       </div>
       <div className="flex flex-col gap-4">
-        <BudgetsItems transactions={datay} />
+        <BudgetsItems transactions={datay.length ? datay : budgets} />
       </div>
     </div>
   );

@@ -7,10 +7,16 @@ import Image from "next/image";
 import Button from "../ui/Button";
 import { useForm } from "react-hook-form";
 import SpinnerMini from "../ui/SpinnerMini";
-import { createBudget, editBudget, getTransactions } from "@/app/_lib/actions";
+import {
+  createBudget,
+  editBudget,
+  getTransaction,
+  getTransactions,
+} from "@/app/_lib/actions";
 import { budgetsProps as budp } from "../overview/Budgets";
 import { Item, itemsColorType } from "./BudgetsItem";
 import { potsProp } from "../pots/Pots";
+import { generateUniqueId } from "@/app/_lib/dats-services";
 
 export { carDown };
 export type budgetsProps = {
@@ -19,6 +25,7 @@ export type budgetsProps = {
   edit?: itemsColorType;
   editPots?: potsProp;
   close?: () => void;
+  userId?: string | undefined;
 };
 
 type FormValues = {
@@ -60,6 +67,7 @@ function BudgtForm({ type, message, edit }: budgetsProps) {
       maximum: +data.maximum,
       theme: colorOpen.color.theme,
       category: catOpen.cat.category,
+      id: generateUniqueId(8),
     };
 
     setLoading(true);
@@ -72,9 +80,9 @@ function BudgtForm({ type, message, edit }: budgetsProps) {
           budgetId: edit?.budgetId,
         };
 
-        await editBudget(5, edit?.budgetId, datay);
+        await editBudget(edit?.budgetId, datay);
       } else {
-        await createBudget(5, formValue);
+        await createBudget(formValue);
       }
     } catch (error) {
       console.error("Budget creation failed");
@@ -109,7 +117,7 @@ function BudgtForm({ type, message, edit }: budgetsProps) {
   useEffect(() => {
     async function getTrx() {
       try {
-        const { budgets } = await getTransactions();
+        const { budgets } = await getTransaction();
 
         const cats = budgets.map((bud: budp) => bud.category);
         setXistCat(cats);

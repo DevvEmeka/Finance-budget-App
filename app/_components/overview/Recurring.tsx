@@ -31,7 +31,7 @@ function Recurring({ recurringTrans }: transactionsProp) {
   const statusesSet = new Set<string>();
 
   // Iterate through the recurring transactions and categorize them
-  recurringTrans.forEach((trx) => {
+  recurringTrans?.forEach((trx) => {
     const trxDate = new Date(trx.date);
     const nextPaymentDate = calculateNextPaymentDate(trxDate);
 

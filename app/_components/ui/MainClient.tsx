@@ -9,6 +9,7 @@ import Modal from "./Modal";
 import BudgtForm from "../budgets/BudgtForm";
 import { usePathname } from "next/navigation";
 import PotsForm from "../pots/PotsForm";
+import User from "../overview/User";
 
 type mainProps = {
   children: ReactNode;
@@ -23,7 +24,12 @@ function MainClient({ children }: mainProps) {
 
   const pathname = usePathname();
   let pathName =
-    pathname === "/" ? "Overview" : pathname.replace("_", " ").replace("/", "");
+    pathname === "/signup" || pathname === "/login" ? (
+      ""
+    ) : pathname === "/" ? ( ''
+    ) : (
+      pathname.replace("_", " ").replace("/", "")
+    );
 
   const data = getData();
 
@@ -33,11 +39,19 @@ function MainClient({ children }: mainProps) {
 
   return (
     <main className={`w-full h-full min-h-screen relative`}>
-      <LeftNav menuSow={menuSow} handleMenuShow={handleMenuShow} />
-      <BottomNav />
+      {pathname === "/signup" || pathname === "/login" ? null : (
+        <>
+          <LeftNav menuSow={menuSow} handleMenuShow={handleMenuShow} />
+          <BottomNav />
+        </>
+      )}
       <div
         className={`${
-          menuSow ? "xl:pl-[316px] lg:pl-[256px]" : "lg:pl-[104px]"
+          pathname === "/signup" || pathname === "/login"
+            ? ""
+            : menuSow
+            ? "xl:pl-[316px] lg:pl-[256px]"
+            : "lg:pl-[104px]"
         } py-8 lg:pr-4 px-4 sm:px-8 z-30`}
       >
         {pathname === "/budgets" ? (

@@ -3,18 +3,21 @@
 import { revalidatePath } from "next/cache";
 import { getData } from "./dats-services";
 import { supabase } from "./supabase";
+import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
+import { transactionsProp } from "../_components/overview/Transactions";
 
-export async function createDummyData() {
+export async function createDummyData(owners_id: string) {
   const dataRaw = getData();
   const sendAbleData = {
-    owners_id: "",
+    owners_id: owners_id,
     transactions: dataRaw?.transactions,
     budgets: dataRaw?.budgets,
     balance: dataRaw?.balance,
     pots: dataRaw?.pots,
   };
   const { data, error } = await supabase
-    .from("transactions")
+    .from("accountsTrx")
     .insert([sendAbleData])
     .select();
 
@@ -24,6 +27,30 @@ export async function createDummyData() {
 
   return data;
 }
+
+export async function createEmptyData(owners_id: string) {
+  const sendAbleData = {
+    owners_id: owners_id,
+    transactions: [],
+    budgets: [],
+    balance: { income: 10000, current: 10000, expenses: 0 },
+    pots: [],
+  };
+  const { data, error } = await supabase
+    .from("accountsTrx")
+    .insert([sendAbleData])
+    .select();
+
+  if (error) {
+    console.error("Error inserting data:", error);
+  }
+
+  return data;
+}
+
+type mainTrx = {
+  transactions: transactionsProp[];
+};
 
 export async function getTransactions() {
   const { data: transactions, error } = await supabase
@@ -35,9 +62,28 @@ export async function getTransactions() {
     throw new Error("Error fetching transactions");
   }
 
-  const theTrx = transactions.find((trx) => trx.id === 5);
+  return transactions;
+}
 
-  return theTrx;
+export async function getTransaction() {
+  const user = cookies().get("user");
+  const userId = user?.value.replace(/"/g, ""); // Remove extra quotes
+
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
+  const { data: transactions, error } = await supabase
+    .from("accountsTrx")
+    .select("*")
+    .eq("owners_id", userId)
+    .single();
+
+  if (error) {
+    console.error("Error fetching transactions:", error);
+    // throw new Error("Error fetching transactions");
+  }
+
+  return transactions;
 }
 
 export async function createTrx(id: number, newTrx: object) {
@@ -80,16 +126,14 @@ type stBud = {
   id: string;
 };
 
-export async function editBudget(
-  id: number,
-  budId: string | undefined,
-  newTask: object
-) {
+export async function editBudget(budId: string | undefined, newTask: object) {
+  const user = cookies().get("user");
+  const userId = user?.value.replace(/"/g, ""); // Remove extra quotes
   // Fetch the current budgets
   const { data: accountsTrx, error: fetchError } = await supabase
     .from("accountsTrx") // Ensure you're fetching from the correct table
     .select("budgets")
-    .eq("id", id)
+    .eq("owners_id", userId)
     .single(); // Fetch a single record by id
 
   if (fetchError) {
@@ -117,7 +161,7 @@ export async function editBudget(
   const { data, error } = await supabase
     .from("accountsTrx") // Update the correct table
     .update({ budgets: updatedBudgets }) // Update the budgets field
-    .eq("id", id); // Ensure the correct record is updated
+    .eq("owners_id", userId); // Ensure the correct record is updated
 
   if (error) {
     console.error("Error updating budget:", error);
@@ -129,12 +173,15 @@ export async function editBudget(
   return data;
 }
 
-export async function createBudget(id: number, newTrx: object) {
+export async function createBudget(newTrx: object) {
   // Fetch the current tasks
+  const user = cookies().get("user");
+  const userId = user?.value.replace(/"/g, "");
+
   const { data: accountsTrx, error: fetchError } = await supabase
     .from("accountsTrx")
     .select("budgets")
-    .eq("id", id)
+    .eq("owners_id", userId)
     .single();
 
   if (fetchError) {
@@ -149,7 +196,7 @@ export async function createBudget(id: number, newTrx: object) {
   const { data, error } = await supabase
     .from("accountsTrx")
     .update({ budgets: updatedTrx })
-    .eq("id", id);
+    .eq("owners_id", userId);
 
   if (error) {
     console.error("Error adding transaction:", error);
@@ -160,12 +207,14 @@ export async function createBudget(id: number, newTrx: object) {
   return data;
 }
 
-export async function deleteBudget(id: number, budId: string | undefined) {
+export async function deleteBudget(budId: string | undefined) {
+  const user = cookies().get("user");
+  const userId = user?.value.replace(/"/g, "");
   // Fetch the current budgets
   const { data: accountsTrx, error: fetchError } = await supabase
     .from("accountsTrx") // Ensure fetching from the correct table
     .select("budgets")
-    .eq("id", id)
+    .eq("ownes_id", userId)
     .single(); // Fetch a single record by id
 
   if (fetchError) {
@@ -192,7 +241,7 @@ export async function deleteBudget(id: number, budId: string | undefined) {
   const { data, error } = await supabase
     .from("accountsTrx") // Update the correct table
     .update({ budgets: updatedBudgets }) // Update with the filtered budgets array
-    .eq("id", id); // Ensure the correct record is updated
+    .eq("ownes_id", userId); // Ensure the correct record is updated
 
   if (error) {
     console.error("Error deleting budget:", error);
@@ -207,11 +256,13 @@ export async function deleteBudget(id: number, budId: string | undefined) {
 }
 
 // POTS
-export async function createPots(id: number, potsData: object) {
+export async function createPots(potsData: object) {
+  const user = cookies().get("user");
+  const userId = user?.value.replace(/"/g, "");
   const { data: accountsTrx, error: fetchError } = await supabase
     .from("accountsTrx") // Ensure fetching from the correct table
     .select("pots")
-    .eq("id", id)
+    .eq("owners_id", userId)
     .single(); // Fetch a single record by id
 
   if (fetchError) {
@@ -226,7 +277,7 @@ export async function createPots(id: number, potsData: object) {
   const { data, error } = await supabase
     .from("accountsTrx")
     .update({ pots: updatedTrx })
-    .eq("id", id);
+    .eq("owners_id", userId);
 
   if (error) {
     console.error("Error adding transaction:", error);
@@ -235,15 +286,13 @@ export async function createPots(id: number, potsData: object) {
   return data;
 }
 
-export async function editPot(
-  id: number,
-  potId: string | undefined,
-  newPot: object
-) {
+export async function editPot(potId: string | undefined, newPot: object) {
+  const user = cookies().get("user");
+  const userId = user?.value.replace(/"/g, "");
   const { data: accountsTrx, error: fetchError } = await supabase
     .from("accountsTrx") // Ensure fetching from the correct table
     .select("pots")
-    .eq("id", id)
+    .eq("owners_id", userId)
     .single(); // Fetch a single record by id
 
   if (fetchError) {
@@ -270,7 +319,7 @@ export async function editPot(
   const { data, error } = await supabase
     .from("accountsTrx") // Update the correct table
     .update({ pots: updatedBudgets }) // Update the budgets field
-    .eq("id", id); // Ensure the correct record is updated
+    .eq("owners_id", userId); // Ensure the correct record is updated
 
   if (error) {
     console.error("Error updating budget:", error);
@@ -281,11 +330,13 @@ export async function editPot(
 
   return data;
 }
-export async function deletePots(id: number, potId: string) {
+export async function deletePots(potId: string) {
+  const user = cookies().get("user");
+  const userId = user?.value.replace(/"/g, "");
   const { data: accountsTrx, error: fetchError } = await supabase
     .from("accountsTrx") // Ensure fetching from the correct table
     .select("pots")
-    .eq("id", id)
+    .eq("owners_id", userId)
     .single(); // Fetch a single record by id
 
   if (fetchError) {
@@ -312,7 +363,7 @@ export async function deletePots(id: number, potId: string) {
   const { data, error } = await supabase
     .from("accountsTrx") // Update the correct table
     .update({ pots: updatedBudgets }) // Update with the filtered budgets array
-    .eq("id", id); // Ensure the correct record is updated
+    .eq("owners_id", userId); // Ensure the correct record is updated
 
   if (error) {
     console.error("Error deleting pots:", error);
@@ -336,17 +387,15 @@ type BalanceType = {
 };
 // POTS
 
-export async function addMoneyToPot(
-  id: number,
-  potsId: string,
-  amount: number
-) {
+export async function addMoneyToPot(potsId: string, amount: number) {
+  const user = cookies().get("user");
+  const userId = user?.value.replace(/"/g, "");
   try {
     // 1. Fetch the user's account transaction
     const { data: accountsTrx, error: fetchError } = await supabase
       .from("accountsTrx")
       .select("pots, balance")
-      .eq("id", id)
+      .eq("owners_id", userId)
       .single(); // Fetch a single record by id
 
     if (fetchError || !accountsTrx) {
@@ -379,7 +428,7 @@ export async function addMoneyToPot(
         pots: updatedPots,
         balance: updatedBalance,
       })
-      .eq("id", id);
+      .eq("owners_id", userId);
 
     if (updateError) {
       throw new Error("Error updating pots or balance: " + updateError.message);
@@ -394,17 +443,15 @@ export async function addMoneyToPot(
   revalidatePath("/");
 }
 
-export async function withdrawFromPot(
-  id: number,
-  potsId: string,
-  amount: number
-) {
+export async function withdrawFromPot(potsId: string, amount: number) {
+  const user = cookies().get("user");
+  const userId = user?.value.replace(/"/g, "");
   try {
     // 1. Fetch the user's account transaction
     const { data: accountsTrx, error: fetchError } = await supabase
       .from("accountsTrx")
       .select("pots, balance")
-      .eq("id", id)
+      .eq("owners_id", userId)
       .single(); // Fetch a single record by id
 
     if (fetchError || !accountsTrx) {
@@ -446,7 +493,7 @@ export async function withdrawFromPot(
         pots: updatedPots,
         balance: updatedBalance,
       })
-      .eq("id", id);
+      .eq("owners_id", userId);
 
     if (updateError) {
       throw new Error("Error updating pots or balance: " + updateError.message);
@@ -459,4 +506,174 @@ export async function withdrawFromPot(
 
   revalidatePath("/");
   revalidatePath("/pots");
+}
+
+type FormValues = {
+  name?: string;
+  email: string;
+  password: string;
+  isDemo?: boolean;
+  user_id?: string | undefined;
+};
+
+export async function signup(formData: FormValues) {
+  const { email, password } = formData;
+
+  // Sign up user via Supabase auth
+  const { data, error } = await supabase.auth.signUp({ email, password });
+
+  if (error) {
+    console.error(error.message);
+    throw new Error(error.message);
+  }
+
+  // Create user data for the owners table
+  const userData = {
+    name: formData.name,
+    email: formData.email,
+    isDemo: formData.isDemo,
+    user_id: data?.user?.id, // Supabase user ID
+  };
+
+  // Insert user data into the owners table
+  const { data: user, error: userError } = await supabase
+    .from("owners")
+    .insert([userData])
+    .select();
+
+  if (userError) {
+    console.error(userError.message);
+    throw new Error(userError.message);
+  }
+
+  // Redirect to login page after successful signup
+  redirect("/login");
+}
+
+export async function getUser() {
+  const user = cookies().get("user");
+  const userId = user?.value.replace(/"/g, "");
+  const { data, error } = await supabase
+    .from("owners")
+    .select("*")
+    .eq("user_id", userId)
+    .single();
+
+  // if (error) {
+  //   console.error(error);
+  //   throw new error(error, "Unable to get user");
+  // }
+
+  return data;
+}
+
+type SignInFormData = {
+  email: string;
+  password: string;
+};
+
+export type ownerdata = {
+  owners_id: string;
+  transactions: [];
+  pots: [];
+  balance: {
+    current: number;
+    income: number;
+    expenses: number;
+  };
+  budgets: [];
+};
+
+export async function signInAction(formData: SignInFormData) {
+  const { email, password } = formData;
+
+  // try {
+  // 1. Sign in user using Supabase authentication
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) {
+    // 2. Handle errors during sign-in
+    cookies()?.delete("user"); // Clear cookies on error
+    console.error("Error signing in:", error.message);
+    throw new Error(error.message);
+  }
+
+  // 3. Set a secure cookie with the user's ID
+  const oneDay = 24 * 60 * 60 * 1000; // One day in milliseconds
+  cookies().set("user", JSON.stringify(data?.user?.id), {
+    path: "/",
+    httpOnly: true, // Make the cookie inaccessible to client-side JavaScript
+    secure: process.env.NODE_ENV === "production", // Only send cookie over HTTPS in production
+    maxAge: oneDay, // Cookie will expire after one day
+  });
+
+  // 4. Fetch the current user data
+  const curUser = await getUser();
+
+  // 5. fetch and check uf the user already has a row in the table
+
+  const allData = await getTransactions();
+
+  const isAlreadyExist = allData?.find(
+    (data: ownerdata) => data.owners_id === curUser.user_id
+  );
+
+  // 6. If the user is a demo user, generate dummy data
+  if (!isAlreadyExist && curUser.isDemo) {
+    await createDummyData(curUser?.user_id);
+  } else if (!isAlreadyExist && !curUser.isDemo) {
+    await createEmptyData(curUser?.user_id);
+  }
+
+  // 7. Return the authentication data
+  redirect("/");
+  return data;
+  // } catch (err) {
+  //   console.error("Sign-in failed:", err);
+  // }
+}
+
+type User = {
+  user_Id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+  isDemo?: boolean;
+  // Add any other fields that exist in your "owners" table
+};
+
+type UserUpdate = {
+  name?: string;
+  email?: string;
+  avatar?: string;
+  // Other fields you might want to allow for updating
+};
+
+export async function updateUser(userObj: UserUpdate) {
+  const user = await getUser();
+
+  let userData;
+  if (user?.avatar && userObj?.avatar?.includes("undfined"))
+    userData = { ...userObj, avatar: user.avatar };
+
+  if (!user?.avatar && userObj?.avatar?.includes("undfined"))
+    userData = { ...userObj, avatar: "" };
+  else userData = { ...userObj };
+  const { data, error } = await supabase
+    .from("owners")
+    .update(userData)
+    .eq("user_id", user.user_id)
+    .select();
+
+  if (error) {
+    console.error("Error updating user:", error.message);
+    throw new Error(error.message);
+  }
+
+  // Revalidate the path if necessary
+  revalidatePath("/settings");
+  revalidatePath("/");
 }

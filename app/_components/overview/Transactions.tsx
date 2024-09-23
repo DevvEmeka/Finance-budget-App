@@ -1,7 +1,7 @@
 import { formatCurrency, formatDateTime } from "@/app/_lib/dats-services";
 import Image from "next/image";
 
-type transactionsProp = {
+ export type transactionsProp = {
   transactions: TrxType[];
 };
 

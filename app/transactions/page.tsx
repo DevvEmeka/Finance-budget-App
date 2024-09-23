@@ -1,18 +1,22 @@
+import {
+  transactionsProp,
+  TrxType,
+} from "../_components/overview/Transactions";
 import Transaction from "../_components/transactions/Transaction";
 import Empty from "../_components/ui/Empty";
-import { getTransactions } from "../_lib/actions";
+import { getTransaction, getTransactions, ownerdata } from "../_lib/actions";
 
 async function page() {
-  const { transactions } = await getTransactions();
+  const data = await getTransaction();
 
-  if (!transactions.length)
+  if (!data?.transactions.length)
     return (
       <div className="w-full h-screen">
         <Empty name="Transactions" />
       </div>
     );
 
-  return <Transaction transactions={transactions} />;
+  return <Transaction transactions={data?.transactions} />;
 }
 
 export default page;

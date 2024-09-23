@@ -75,7 +75,7 @@ function PotsItem({ item }: propsPots) {
   async function handleDelete() {
     setIsLoading(true);
     try {
-      await deletePots(5, item.id);
+      await deletePots(item.id);
     } catch (error) {
       console.error(error);
     } finally {

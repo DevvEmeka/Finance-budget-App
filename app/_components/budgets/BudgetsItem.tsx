@@ -79,7 +79,7 @@ function BudgetsItem({ item }: Item) {
   async function handleDelBudget() {
     setIsDeleting(true);
     try {
-      await deleteBudget(5, budgetId);
+      await deleteBudget(budgetId);
       // TODO: Update state
     } catch (error) {
       console.error("Error deleting budget:", error);
@@ -311,6 +311,7 @@ type bugsumprop = {
 
 type transac = {
   transactions: bugsumprop[];
+  userId?: string | undefined;
 };
 
 export function BudgetsSummaryItems({ transactions }: transac) {
@@ -336,6 +337,7 @@ export function BudgetsSummaryItems({ transactions }: transac) {
 export type Item = {
   item: itemsColorType;
   transactions?: itemsColorType[];
+  userId?: string | undefined;
 };
 
 function BudgetsColors({ item }: Item) {

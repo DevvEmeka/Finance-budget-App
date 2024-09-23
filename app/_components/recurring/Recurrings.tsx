@@ -1,12 +1,12 @@
 import BalanceItem from "../overview/BalanceItem";
 import recurringIcon from "@/public/assets/images/icon-recurring-bills.svg";
 import RecurringItems, { Item, RecurringSummary } from "./RecurringItems";
-import { getTransactions } from "@/app/_lib/actions";
+import { getTransaction, getTransactions } from "@/app/_lib/actions";
 import { TrxType } from "../overview/Transactions";
 import Empty from "../ui/Empty";
 
 async function Recurrings() {
-  const { transactions } = await getTransactions();
+  const { transactions } = await getTransaction();
 
   const filteredTransactions = transactions.filter(
     (trx: TrxType) => trx.recurring === true

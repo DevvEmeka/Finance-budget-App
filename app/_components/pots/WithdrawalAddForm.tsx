@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import Button from "../ui/Button";
 import {
   addMoneyToPot,
+  getTransaction,
   getTransactions,
   withdrawFromPot,
 } from "@/app/_lib/actions";
@@ -37,7 +38,7 @@ function WithdrawalAddForm({ type, item }: formparam) {
 
   useEffect(() => {
     async function getSetBalance() {
-      const data = await getTransactions();
+      const data = await getTransaction();
 
       const curBalance = data.balance;
 
@@ -49,8 +50,8 @@ function WithdrawalAddForm({ type, item }: formparam) {
   async function onSubmit(data: FormValues) {
     setLoading(true);
     try {
-      if (type === "add") await addMoneyToPot(5, item.id, Number(data.amount));
-      else await withdrawFromPot(5, item.id, Number(data.amount));
+      if (type === "add") await addMoneyToPot(item.id, Number(data.amount));
+      else await withdrawFromPot(item.id, Number(data.amount));
     } catch (error) {
       console.error(error);
     } finally {

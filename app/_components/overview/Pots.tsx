@@ -17,7 +17,7 @@ type potsProp = {
 
 function Pots({ potsItems }: potsProp) {
   const totalPots = potsItems
-    .map((pot) => pot.total)
+    ?.map((pot) => pot.total)
     .reduce((acc, cur) => acc + cur, 0);
 
   return (
@@ -35,7 +35,7 @@ function Pots({ potsItems }: potsProp) {
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        {potsItems.slice(0, 4).map((pot, i) => (
+        {potsItems?.slice(0, 4).map((pot, i) => (
           <ItemsColor {...pot} key={i} />
         ))}
       </div>
@@ -50,7 +50,7 @@ export type itemsColorType = {
   theme: string;
   name?: string;
   total?: number;
-  id? : string
+  id?: string;
 };
 
 export function ItemsColor({

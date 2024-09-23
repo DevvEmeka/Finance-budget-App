@@ -8,6 +8,7 @@ import Button from "../ui/Button";
 import { useForm } from "react-hook-form";
 import { createPots, editPot } from "@/app/_lib/actions";
 import SpinnerMini from "../ui/SpinnerMini";
+import { generateUniqueId } from "@/app/_lib/dats-services";
 
 type FormValues = {
   name: string;
@@ -52,7 +53,7 @@ function PotsForm({ type, message, editPots, close }: budgetsProps) {
       name: data.name,
       theme: colorOpen.color.theme,
       target: +data.target,
-      id: `pots${Math.random() * 10}`,
+      id: generateUniqueId(9),
       total: 0,
     };
 
@@ -65,8 +66,8 @@ function PotsForm({ type, message, editPots, close }: budgetsProps) {
           theme: colorOpen.color.theme,
           id: editPots?.id,
         };
-        await editPot(5, editPots?.id, editData);
-      } else await createPots(5, dataPots);
+        await editPot(editPots?.id, editData);
+      } else await createPots(dataPots);
     } catch (error) {
     } finally {
       setIsLoading(false);

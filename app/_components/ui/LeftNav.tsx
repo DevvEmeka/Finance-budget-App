@@ -72,6 +72,13 @@ export const navList = [
     iconActive: recBillsActive,
     href: "/recurring_bills",
   },
+
+  {
+    name: "Settings",
+    icon: navBudgets,
+    iconActive: navBudgetsActive,
+    href: "/settings",
+  },
 ];
 
 type navProp = {

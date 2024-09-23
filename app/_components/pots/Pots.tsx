@@ -1,4 +1,4 @@
-import { getTransactions } from "@/app/_lib/actions";
+import { getTransaction, getTransactions } from "@/app/_lib/actions";
 import PotsItem from "./PotsItem";
 import Empty from "../ui/Empty";
 
@@ -12,9 +12,9 @@ export type potsProp = {
 };
 
 async function Pots() {
-  const { pots } = await getTransactions();
+  const { pots } = await getTransaction();
 
-  if (!pots.length)
+  if (!pots?.length)
     return (
       <div className="w-full h-screen">
         <Empty name="Pots" />

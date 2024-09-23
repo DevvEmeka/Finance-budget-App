@@ -1,4 +1,4 @@
-import { getTransactions } from "@/app/_lib/actions";
+import { getTransaction, getTransactions } from "@/app/_lib/actions";
 import BalanceItem from "./BalanceItem";
 import Budgets from "./Budgets";
 import GridItems, { FlexItems, HeaderGrid, LinkButton } from "./GridItems";
@@ -7,11 +7,10 @@ import Recurring from "./Recurring";
 import Transactions, { TrxType } from "./Transactions";
 
 async function Overview() {
-  const data = await getTransactions();
+  const data = await getTransaction();
 
   const { transactions, budgets, pots } = data || [];
 
-  // console.log(transactions);
 
   const recuTrans = transactions?.filter(
     (transaction: TrxType) => transaction.recurring === true
