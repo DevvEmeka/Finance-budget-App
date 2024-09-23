@@ -42,7 +42,7 @@ function AuthItem({ pageName, type, userData }: pageName) {
   const { errors } = formState;
 
   const [loading, setLoading] = useState(false);
-
+  const [failError, setFailError] = useState("");
   async function onSubmit(data: FormValues) {
     const dataAv = {
       name: data.name,
@@ -80,8 +80,9 @@ function AuthItem({ pageName, type, userData }: pageName) {
         // console.log(dataObj.avatar);
         await updateUser(dataObj);
       }
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      console.error(error?.message);
+      setFailError(error?.message);
     } finally {
       setLoading(false);
     }
@@ -219,6 +220,10 @@ function AuthItem({ pageName, type, userData }: pageName) {
           />
         </div>
       ) : null}
+
+      {failError && (
+        <p className="text-sm text-center text-secondary-red">{failError}</p>
+      )}
       <Button
         className="flex justify-center mt-8"
         onClick={handleSubmit(onSubmit)}
