@@ -110,7 +110,7 @@ function BudgetsItem({ item }: Item) {
             type="edit"
             message=""
             edit={item}
-            // close={handleCloseModal}
+            close={handleCloseModal}
           />
         </Modal>
       )}

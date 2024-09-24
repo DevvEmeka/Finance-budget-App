@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useState } from "react";
 import LeftNav from "./LeftNav";
 import Header from "./Header";
 import BottomNav from "./BottomNav";
@@ -56,7 +56,7 @@ function MainClient({ children }: mainProps) {
       >
         {pathname === "/budgets" ? (
           <Modal title="Add New Budget" isOpen={showModal} onClose={closeModal}>
-            <BudgtForm type="new" message="" />
+            <BudgtForm type="new" message="" close={closeModal} />
           </Modal>
         ) : pathname === "/pots" ? (
           <Modal title="Add New Pot" isOpen={showModal} onClose={closeModal}>
@@ -64,7 +64,7 @@ function MainClient({ children }: mainProps) {
           </Modal>
         ) : pathname === "/" ? (
           <Modal title="Transfer" isOpen={showModal} onClose={closeModal}>
-            <TrxForm />
+            <TrxForm close={closeModal} />
           </Modal>
         ) : null}
         <Header pathName={pathName} openModal={openModal} />

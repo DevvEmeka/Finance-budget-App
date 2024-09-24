@@ -33,7 +33,7 @@ type FormValues = {
   maximum: number;
 };
 
-function BudgtForm({ type, message, edit }: budgetsProps) {
+function BudgtForm({ type, message, edit, close }: budgetsProps) {
   const { register, handleSubmit, formState, setValue } = useForm<FormValues>();
 
   const { errors } = formState;
@@ -89,7 +89,7 @@ function BudgtForm({ type, message, edit }: budgetsProps) {
       console.error("Budget creation failed");
     } finally {
       setLoading(false);
-      // close?.();
+      close?.();
     }
   }
 

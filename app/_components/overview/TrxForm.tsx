@@ -12,7 +12,11 @@ type FormValues = {
   accountId: string;
 };
 
-function TrxForm() {
+type trxForm = {
+  close: () => void;
+};
+
+function TrxForm({ close }: trxForm) {
   const { register, handleSubmit, formState, setValue, watch } =
     useForm<FormValues>();
   const { errors } = formState;
