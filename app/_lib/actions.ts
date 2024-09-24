@@ -629,6 +629,7 @@ type FormValues = {
   password: string;
   isDemo?: boolean;
   user_id?: string | undefined;
+  avatar: string;
 };
 
 export async function signup(formData: FormValues) {
@@ -644,6 +645,7 @@ export async function signup(formData: FormValues) {
 
   // Create user data for the owners table
   const userData = {
+    avatar: formData.avatar,
     name: formData.name,
     email: formData.email,
     isDemo: formData.isDemo,

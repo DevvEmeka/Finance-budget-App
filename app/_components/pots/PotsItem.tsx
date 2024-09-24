@@ -122,7 +122,7 @@ function PotsItem({ item }: propsPots) {
           onClose={handleCloseModal}
           title={`Add to '${item.name}' `}
         >
-          <WithdrawalAddForm item={item} type="add" />
+          <WithdrawalAddForm item={item} type="add" close={handleCloseModal} />
         </Modal>
       )}
 
@@ -132,7 +132,11 @@ function PotsItem({ item }: propsPots) {
           onClose={handleCloseModal}
           title={`Withdraw from '${item.name}' `}
         >
-          <WithdrawalAddForm item={item} type="withdraw" />
+          <WithdrawalAddForm
+            item={item}
+            type="withdraw"
+            close={handleCloseModal}
+          />
         </Modal>
       )}
       <FlexItems className="relative">

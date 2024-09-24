@@ -106,7 +106,12 @@ function BudgetsItem({ item }: Item) {
           onClose={handleCloseModal}
           title={`Edit ${item.category} budget`}
         >
-          <BudgtForm type="edit" message="" edit={item} />
+          <BudgtForm
+            type="edit"
+            message=""
+            edit={item}
+            // close={handleCloseModal}
+          />
         </Modal>
       )}
 
@@ -326,7 +331,7 @@ export function BudgetsSummaryItems({ transactions }: transac) {
     }
 
     getbudgets();
-  });
+  }, []);
 
   const total = budgets.reduce((sum, budget) => sum + budget.maximum, 0);
 

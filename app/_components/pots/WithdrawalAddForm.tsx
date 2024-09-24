@@ -18,13 +18,14 @@ import SpinnerMini from "../ui/SpinnerMini";
 type formparam = {
   type: "add" | "withdraw";
   item: potsProp;
+  close: () =>void
 };
 
 type FormValues = {
   amount: number;
 };
 
-function WithdrawalAddForm({ type, item }: formparam) {
+function WithdrawalAddForm({ type, item, close }: formparam) {
   const { register, handleSubmit, formState, setValue, watch } =
     useForm<FormValues>();
   const { errors } = formState;
@@ -56,7 +57,7 @@ function WithdrawalAddForm({ type, item }: formparam) {
       console.error(error);
     } finally {
       setLoading(false);
-      // close(); // Close the form if successful
+      close(); // Close the form if successful
     }
   }
 

@@ -13,10 +13,11 @@ import {
   getTransaction,
   getTransactions,
 } from "@/app/_lib/actions";
-import { budgetsProps as budp } from "../overview/Budgets";
+import Budgets, { budgetsProps as budp } from "../overview/Budgets";
 import { Item, itemsColorType } from "./BudgetsItem";
 import { potsProp } from "../pots/Pots";
 import { generateUniqueId } from "@/app/_lib/dats-services";
+import { createServer } from "net";
 
 export { carDown };
 export type budgetsProps = {
@@ -88,6 +89,7 @@ function BudgtForm({ type, message, edit }: budgetsProps) {
       console.error("Budget creation failed");
     } finally {
       setLoading(false);
+      // close?.();
     }
   }
 

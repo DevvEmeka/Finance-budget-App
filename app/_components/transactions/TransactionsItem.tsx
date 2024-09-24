@@ -1,7 +1,7 @@
 import { formatCurrency, formatDateTime } from "@/app/_lib/dats-services";
 import { Item } from "../overview/Transactions";
 import Image from "next/image";
-
+import defaultImg from "@/public/assets/images/avatars/ecofuel-energy.jpg";
 function TransactionsItem({ item }: Item) {
   return (
     <>
@@ -9,8 +9,10 @@ function TransactionsItem({ item }: Item) {
         <span className="relative w-6 h-6 rounded-full">
           <Image
             src={
-              item.avatar.startsWith(".")
+              item?.avatar && item?.avatar?.startsWith(".")
                 ? item.avatar.replace(".", "")
+                : item.avatar
+                ? defaultImg
                 : item.avatar
             }
             alt="User Avatar"

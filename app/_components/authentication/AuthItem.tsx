@@ -49,7 +49,8 @@ function AuthItem({ pageName, type, userData }: pageName) {
       email: data.email,
       password: data.password,
       isDemo: data.isDemo,
-      avatar: "",
+      avatar:
+        "https://gvgpostygychqnvirwei.supabase.co/storage/v1/object/public/avatars/097d6791-1d27-48ad-a611-54018dac8943-serenity-spa-and-wellness.jpg",
     };
     setLoading(true);
 
@@ -135,7 +136,7 @@ function AuthItem({ pageName, type, userData }: pageName) {
           <input
             placeholder="michael@mail.com"
             className={`h-full w-full outline-none ${
-              type === "edit" ? "cursor-not-allowed" : "cursor-pointer"
+              type === "edit" ? "cursor-not-allowed" : ""
             }`}
             type="email"
             {...register("email", {

@@ -1,7 +1,8 @@
 import { formatCurrency, formatDateTime } from "@/app/_lib/dats-services";
 import Image from "next/image";
+import defaultImg from "@/public/assets/images/avatars/flavor-fiesta.jpg";
 
- export type transactionsProp = {
+export type transactionsProp = {
   transactions: TrxType[];
 };
 
@@ -36,9 +37,11 @@ export function TransactionItem({ item }: Item) {
         <span className="relative w-8 h-8 rounded-full">
           <Image
             src={
-              item.avatar.startsWith(".")
-                ? item.avatar.replace(".", "")
-                : item.avatar
+              item.avatar && item?.avatar?.startsWith(".")
+                ? item?.avatar?.replace(".", "")
+                : !item.avatar
+                ? defaultImg
+                : item?.avatar
             }
             alt="User Avatar"
             fill
@@ -46,7 +49,7 @@ export function TransactionItem({ item }: Item) {
           />
         </span>
 
-        <p className="text-grey-900  ">{item.name}</p>
+        <p className="text-grey-900  ">{item?.name}</p>
       </div>
       <div className="flex flex-col gap-3 items-end">
         <p
@@ -54,9 +57,9 @@ export function TransactionItem({ item }: Item) {
             item.amount > 0 ? "text-secondary-green" : "text-grey-500"
           }`}
         >
-          {item.amount > 0
-            ? `+${formatCurrency(item.amount)}`
-            : formatCurrency(item.amount)}
+          {item?.amount > 0
+            ? `+${formatCurrency(item?.amount)}`
+            : formatCurrency(item?.amount)}
         </p>
         <p className="text-grey-500">{formatDateTime(item.date)}</p>
       </div>
