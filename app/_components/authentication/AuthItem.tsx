@@ -14,6 +14,7 @@ import {
 import SpinnerMini from "../ui/SpinnerMini";
 // import { uploadImage } from "@/app/_lib/upload";
 import { uploadImage } from "@/app/_lib/dats-services";
+import { usePathname } from "next/navigation";
 
 type FormValues = {
   name?: string;
@@ -40,7 +41,7 @@ type pageName = {
 function AuthItem({ pageName, type, userData }: pageName) {
   const { register, handleSubmit, formState, setValue } = useForm<FormValues>();
   const { errors } = formState;
-
+  const pathname = usePathname();
   const [loading, setLoading] = useState(false);
   const [failError, setFailError] = useState("");
   async function onSubmit(data: FormValues) {
@@ -83,7 +84,11 @@ function AuthItem({ pageName, type, userData }: pageName) {
       }
     } catch (error: any) {
       console.error(error?.message);
-      setFailError(error?.message);
+      pageName === "login"
+        ? setFailError("Invalid credentials")
+        : pathname === "signup"
+        ? setFailError("User Already exists")
+        : setFailError(error.message);
     } finally {
       setLoading(false);
     }
