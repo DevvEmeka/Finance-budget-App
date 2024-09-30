@@ -99,6 +99,11 @@ type transactionType = {
 export async function createTrx(id: string, newTrx: transactionType) {
   // Fetch the current senders trx
   const user = await getUser();
+
+  // if (id === user.user_id) {
+  //   throw new Error("You cant money to yourself");
+  //   return;
+  // }
   const { data: accountsTrx, error: fetchError } = await supabase
     .from("accountsTrx")
     .select("transactions, balance")

@@ -89,7 +89,7 @@ function LeftNav({ menuSow, handleMenuShow }: navProp) {
   const pathname = usePathname();
   return (
     <aside
-      className={`absolute left-0  top-0 bottom-0 bg-grey-900 rounded-r-xl lg:flex flex-col justify-between py-12 ${
+      className={`fixed left-0  top-0 bottom-0 bg-grey-900 rounded-r-xl lg:flex flex-col justify-between py-12 ${
         menuSow ? "xl:w-[300px] lg:w-[240px]" : "lg:w-[88px]"
       } transition-all duration-500 hidden z-50`}
     >
